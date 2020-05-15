@@ -21,25 +21,25 @@ namespace Veauty.GameObject
                     break;
             }
 
+            return go;
+        }
+
+        private static UnityEngine.GameObject CreateGameObject(string name, bool isUGUI)
+        {
+            var go = new UnityEngine.GameObject(name);
             if (isUGUI)
             {
                 var rectTransform = go.AddComponent<RectTransform>();
                 rectTransform.anchorMin = Vector2.zero;
                 rectTransform.anchorMax = Vector2.one;
             }
-
-            return go;
-        }
-
-        private static UnityEngine.GameObject CreateGameObject(string name)
-        {
-            var go = new UnityEngine.GameObject(name);
+            
             return go;
         }
 
         private static UnityEngine.GameObject CreateNode(BaseNode vNode, bool isUGUI)
         {
-            var go = CreateGameObject(vNode.tag);
+            var go = CreateGameObject(vNode.tag, isUGUI);
 
             if (vNode is ITypedNode node)
             {
@@ -58,7 +58,7 @@ namespace Veauty.GameObject
 
         private static UnityEngine.GameObject CreateNode(BaseKeyedNode vNode, bool isUGUI)
         {
-            var go = CreateGameObject(vNode.tag);
+            var go = CreateGameObject(vNode.tag, isUGUI);
             
             if (vNode is ITypedNode node)
             {
