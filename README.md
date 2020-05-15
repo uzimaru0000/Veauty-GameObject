@@ -28,8 +28,7 @@ I'm happy if you contribute！
 
 ## Development
 1. Make your project and make directory Packages in it.
-2. In Packages, git clone https://github.com/uzimaru0000/UniTEA.git
-3. Install UniTEA from clone.
+2. In Packages, git clone https://github.com/uzimaru0000/Veauty-GameObject.git
 
 ## Contribution
 
