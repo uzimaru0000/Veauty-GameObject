@@ -1,0 +1,15 @@
+{
+    "name": "Veauty.GameObject",
+    "references": [
+        "GUID:3c3bb70aa1db24066afd143bd98757f8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
