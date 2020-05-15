@@ -7,7 +7,7 @@ namespace Veauty.GameObject
 {
     public static class Patch
     {
-        public static UnityEngine.GameObject Apply(UnityEngine.GameObject rootGameObject, IVTree oldVTree, IPatch[] patches)
+        public static UnityEngine.GameObject Apply(UnityEngine.GameObject rootGameObject, IVTree oldVTree, IPatch[] patches, bool isUGUI)
         {
             if (patches.Length == 0)
             {
@@ -16,7 +16,7 @@ namespace Veauty.GameObject
             
             AddGameObjectNodes(rootGameObject, oldVTree, ref patches);
             
-            return Helper(rootGameObject, patches);
+            return Helper(rootGameObject, patches, isUGUI);
         }
 
         private static void AddGameObjectNodes(in UnityEngine.GameObject gameObjectNode, IVTree vTree, ref IPatch[] patches)
@@ -119,12 +119,12 @@ namespace Veauty.GameObject
             return i;
         }
 
-        private static UnityEngine.GameObject Helper(UnityEngine.GameObject rootGameObject, IPatch[] patches)
+        private static UnityEngine.GameObject Helper(UnityEngine.GameObject rootGameObject, IPatch[] patches, bool isUGUI)
         {
             foreach (var patch in patches)
             {
                 var localGameObject = patch.GetGameObject();
-                var newGameObject = ApplyPatch(localGameObject, patch);
+                var newGameObject = ApplyPatch(localGameObject, patch, isUGUI);
                 if (localGameObject == rootGameObject)
                 {
                     rootGameObject = newGameObject;
@@ -134,13 +134,13 @@ namespace Veauty.GameObject
             return rootGameObject;
         }
 
-        private static UnityEngine.GameObject ApplyPatch(UnityEngine.GameObject go, IPatch patch)
+        private static UnityEngine.GameObject ApplyPatch(UnityEngine.GameObject go, IPatch patch, bool isUGUI)
         {
             switch (patch)
             {
                 case Redraw redraw:
                 {
-                    return ApplyPatchRedraw(go, redraw.vTree);
+                    return ApplyPatchRedraw(go, redraw.vTree, isUGUI);
                 }
                 case Attrs attrs:
                 {
@@ -161,7 +161,7 @@ namespace Veauty.GameObject
                     var i = append.length;
                     for (; i < kids.Length; i++)
                     {
-                        var node = Renderer.Render(kids[i]);
+                        var node = Renderer.Render(kids[i], isUGUI);
                         node.transform.SetParent(go.transform);
                     }
                     return go;
@@ -179,12 +179,12 @@ namespace Veauty.GameObject
                         go.transform.SetParent(null);
                     }
 
-                    remove.entry.data = Helper(go, remove.patches);
+                    remove.entry.data = Helper(go, remove.patches, isUGUI);
                     return go;
                 }
                 case Reorder reorder:
                 {
-                    return ApplyPatchReorder(go, reorder);
+                    return ApplyPatchReorder(go, reorder, isUGUI);
                 }
                 case Attach attach:
                 {
@@ -194,10 +194,10 @@ namespace Veauty.GameObject
             return go;
         }
 
-        private static UnityEngine.GameObject ApplyPatchRedraw(UnityEngine.GameObject go, IVTree vTree)
+        private static UnityEngine.GameObject ApplyPatchRedraw(UnityEngine.GameObject go, IVTree vTree, bool isUGUI)
         {
             var parent = go.transform.parent;
-            var newNode = Renderer.Render(vTree);
+            var newNode = Renderer.Render(vTree, isUGUI);
 
             if (parent && newNode != go)
             {
@@ -218,16 +218,16 @@ namespace Veauty.GameObject
             return go;
         }
 
-        private static UnityEngine.GameObject ApplyPatchReorder(UnityEngine.GameObject go, Reorder patch)
+        private static UnityEngine.GameObject ApplyPatchReorder(UnityEngine.GameObject go, Reorder patch, bool isUGUI)
         {
-            var frag = ApplyPatchReorderEndInsertsHelper(patch.endInserts, patch);
+            var frag = ApplyPatchReorderEndInsertsHelper(patch.endInserts, patch, isUGUI);
             
-            go = Helper(go, patch.patches);
+            go = Helper(go, patch.patches, isUGUI);
 
             foreach (var insert in patch.inserts)
             {
                 var entry = insert.entry;
-                var node = entry.tag == Entry.Type.Move ? entry.data as UnityEngine.GameObject : Renderer.Render(entry.vTree);
+                var node = entry.tag == Entry.Type.Move ? entry.data as UnityEngine.GameObject : Renderer.Render(entry.vTree, isUGUI);
                 node.transform.SetParent(go.transform);
                 node.transform.SetSiblingIndex(insert.index); 
             }
@@ -243,7 +243,7 @@ namespace Veauty.GameObject
             return go;
         }
 
-        private static UnityEngine.GameObject[] ApplyPatchReorderEndInsertsHelper(Reorder.Insert[] endInserts, Reorder patch)
+        private static UnityEngine.GameObject[] ApplyPatchReorderEndInsertsHelper(Reorder.Insert[] endInserts, Reorder patch, bool isUGUI)
         {
             if (endInserts.Length == 0)
             {
@@ -255,7 +255,7 @@ namespace Veauty.GameObject
             {
                 var insert = endInserts[i];
                 var entry = insert.entry;
-                frag[i] = entry.tag == Entry.Type.Move ? entry.data as UnityEngine.GameObject : Renderer.Render(entry.vTree);
+                frag[i] = entry.tag == Entry.Type.Move ? entry.data as UnityEngine.GameObject : Renderer.Render(entry.vTree, isUGUI);
             }
 
             return frag;

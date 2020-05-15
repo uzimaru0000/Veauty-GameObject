@@ -5,19 +5,30 @@ namespace Veauty.GameObject
 {
     public static class Renderer
     {
-        public static UnityEngine.GameObject Render(IVTree vTree)
+        public static UnityEngine.GameObject Render(IVTree vTree, bool isUGUI)
         {
+            UnityEngine.GameObject go = null;
             switch (vTree)
             {
                 case BaseNode vNode:
-                    return CreateNode(vNode);
+                    go = CreateNode(vNode, isUGUI);
+                    break;
                 case BaseKeyedNode vNode:
-                    return CreateNode(vNode);
+                    go = CreateNode(vNode, isUGUI);
+                    break;
                 case Widget widget:
-                    return widget.Init(Render(widget.Render())); 
-                default:
-                    return null;
+                    go = widget.Init(Render(widget.Render(), isUGUI)); 
+                    break;
             }
+
+            if (isUGUI)
+            {
+                var rectTransform = go.AddComponent<RectTransform>();
+                rectTransform.anchorMin = Vector2.zero;
+                rectTransform.anchorMax = Vector2.one;
+            }
+
+            return go;
         }
 
         private static UnityEngine.GameObject CreateGameObject(string name)
@@ -26,7 +37,7 @@ namespace Veauty.GameObject
             return go;
         }
 
-        private static UnityEngine.GameObject CreateNode(BaseNode vNode)
+        private static UnityEngine.GameObject CreateNode(BaseNode vNode, bool isUGUI)
         {
             var go = CreateGameObject(vNode.tag);
 
@@ -39,13 +50,13 @@ namespace Veauty.GameObject
 
             foreach (var kid in vNode.kids)
             {
-                AppendChild(go, Render(kid));
+                AppendChild(go, Render(kid, isUGUI));
             }
             
             return go;
         }
 
-        private static UnityEngine.GameObject CreateNode(BaseKeyedNode vNode)
+        private static UnityEngine.GameObject CreateNode(BaseKeyedNode vNode, bool isUGUI)
         {
             var go = CreateGameObject(vNode.tag);
             
@@ -58,7 +69,7 @@ namespace Veauty.GameObject
 
             foreach (var kid in vNode.kids)
             {
-                AppendChild(go, Render(kid.Item2));
+                AppendChild(go, Render(kid.Item2, isUGUI));
             }
 
             return go;
