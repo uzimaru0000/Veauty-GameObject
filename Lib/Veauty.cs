@@ -1,3 +1,4 @@
+using UnityEngine;
 using Veauty.VTree;
 
 namespace Veauty.GameObject
@@ -33,6 +34,11 @@ namespace Veauty.GameObject
         {
             this.rootObj = Renderer.Render(this.oldTree, this.isUGUI);
             this.rootObj.transform.SetParent(this.mounter.transform, false);
+            if (this.isUGUI)
+            {
+                var rect = this.rootObj.transform as RectTransform;
+                rect.sizeDelta = Vector2.zero;
+            }
         }
     }
 }
