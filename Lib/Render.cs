@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Veauty.VTree;
 
@@ -10,18 +11,36 @@ namespace Veauty.GameObject
             UnityEngine.GameObject go = null;
             switch (vTree)
             {
-                case BaseNode vNode:
-                    go = CreateNode(vNode, isUGUI);
-                    break;
-                case BaseKeyedNode vNode:
-                    go = CreateNode(vNode, isUGUI);
-                    break;
+                case NodeBase vNode:
+                    go = CreateGameObject(vNode.tag, isUGUI);
+                    AttachComponent(go, vNode, isUGUI);
+                    ApplyAttrs(go, vNode);
+                    RenderKids(go, vNode, isUGUI);
+                    return go;
                 case Widget widget:
-                    go = widget.Init(Render(widget.Render(), isUGUI)); 
-                    break;
+                    return RenderWidget(widget, isUGUI);          
+                default:
+                    throw new Exception("Invalid node type");
             }
+        }
 
-            return go;
+        private static UnityEngine.GameObject RenderWidget(Widget widget, bool isUGUI)
+        {
+            var tree = widget.Render();
+            switch (tree)
+            {
+                case Widget nest:
+                    return Render(nest, isUGUI);
+                case BaseNode node:
+                    var go = CreateGameObject(node.tag, isUGUI);
+                    AttachComponent(go, node, isUGUI);
+                    widget.Init(go);
+                    ApplyAttrs(go, node);
+                    RenderKids(go, node, isUGUI);
+                    return go;
+                default:
+                    throw new Exception("Invalid node type");
+            }
         }
 
         private static UnityEngine.GameObject CreateGameObject(string name, bool isUGUI)
@@ -37,52 +56,30 @@ namespace Veauty.GameObject
             return go;
         }
 
-        private static UnityEngine.GameObject CreateNode(BaseNode vNode, bool isUGUI)
+        private static void AttachComponent(UnityEngine.GameObject go, IVTree tree, bool isUGUI)
         {
-            var go = CreateGameObject(vNode.tag, isUGUI);
+            if (!(tree is ITypedNode node)) return;
+            go.AddComponent(node.GetComponentType());
+        }
 
-            if (vNode is ITypedNode node)
-            {
-                go.AddComponent(node.GetComponentType());
-            }
-            
-            ApplyAttrs(go, vNode.attrs);
-
-            foreach (var kid in vNode.kids)
+        private static void RenderKids(UnityEngine.GameObject go, IVTree tree, bool isUGUI)
+        {
+            if (!(tree is IParent parent)) return;
+            foreach (var kid in parent.GetKids())
             {
                 AppendChild(go, Render(kid, isUGUI));
             }
-            
-            return go;
-        }
-
-        private static UnityEngine.GameObject CreateNode(BaseKeyedNode vNode, bool isUGUI)
-        {
-            var go = CreateGameObject(vNode.tag, isUGUI);
-            
-            if (vNode is ITypedNode node)
-            {
-                go.AddComponent(node.GetComponentType());
-            }
-            
-            ApplyAttrs(go, vNode.attrs);
-
-            foreach (var kid in vNode.kids)
-            {
-                AppendChild(go, Render(kid.Item2, isUGUI));
-            }
-
-            return go;
         }
 
         private static void AppendChild(UnityEngine.GameObject parent, UnityEngine.GameObject kid)
         {
-            kid.transform.SetParent(parent.transform, false);
+            kid.transform.SetParent(parent.transform);
         }
 
-        private static void ApplyAttrs(UnityEngine.GameObject go, Attributes attrs)
+        private static void ApplyAttrs(UnityEngine.GameObject go, IVTree tree)
         {
-            foreach (var attr in attrs.attrs)
+            if (!(tree is NodeBase node)) return;
+            foreach (var attr in node.attrs.attrs)
             {
                 attr.Value.Apply(go);
             }
