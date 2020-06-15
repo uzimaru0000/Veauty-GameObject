@@ -1,5 +1,4 @@
 using UnityEngine;
-using Veauty.VTree;
 
 namespace Veauty.GameObject
 {

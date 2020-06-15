@@ -1,31 +1,12 @@
 namespace Veauty.GameObject.Attributes
 {
-    public interface IGameObject : IAttribute { }
-
-    public class Active : IGameObject
+    public class Active : Attribute<bool>
     {
-        private bool isActive;
-
-        public Active(bool isActive)
-        {
-            this.isActive = isActive;
-        }
+        public Active(bool isActive) : base("Active", isActive) { }
         
-        public string GetKey() => "Active";
-
-        public void Apply(UnityEngine.GameObject obj)
+        public override void Apply(UnityEngine.GameObject obj)
         {
-            obj.SetActive(this.isActive);
-        }
-
-        public bool Equals(IAttribute attr)
-        {
-            if (attr is Active other)
-            {
-                return this.isActive == other.isActive;
-            }
-
-            return false;
+            obj.SetActive(this.GetValue());
         }
     }
 }

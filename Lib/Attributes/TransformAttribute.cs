@@ -2,104 +2,59 @@ using UnityEngine;
 
 namespace Veauty.GameObject.Attributes
 {
-    public interface ITransform : IAttribute { }
-    
-    public class Position : ITransform
+    public class Position : Attribute<Vector3>
     {
-        private Vector3 pos;
         private bool isLocal;
         
-        public Position(Vector3 pos, bool isLocal = false)
+        public Position(Vector3 pos, bool isLocal = false) : base("Position", pos)
         {
-            this.pos = pos;
             this.isLocal = isLocal;
         }
 
-        public string GetKey() => "Position";
-
-        public void Apply(UnityEngine.GameObject obj)
+        public override void Apply(UnityEngine.GameObject obj)
         {
             if (this.isLocal)
             {
-                obj.transform.localPosition = this.pos;
+                obj.transform.localPosition = this.GetValue();
             }
             else
             {
-                obj.transform.position = this.pos;
+                obj.transform.position = this.GetValue();
             }
-        }
-
-        public bool Equals(IAttribute attr)
-        {
-            if (attr is Position other)
-            {
-                return this.pos == other.pos && this.isLocal == other.isLocal;
-            }
-
-            return false;
         }
     }
 
-    public class Rotation : ITransform
+    public class Rotation : Attribute<Quaternion>
     {
-        private Quaternion rot;
         private bool isLocal;
         
-        public Rotation(Quaternion rot, bool isLocal = false)
+        public Rotation(Quaternion rot, bool isLocal = false) : base("Rotation", rot)
         {
-            this.rot = rot;
             this.isLocal = isLocal;
         }
 
-        public string GetKey() => "Rotation";
-
-        public void Apply(UnityEngine.GameObject obj)
+        public override void Apply(UnityEngine.GameObject obj)
         {
             if (this.isLocal)
             {
-                obj.transform.rotation = rot;
+                obj.transform.rotation = this.GetValue();
             }
             else
             {
-                obj.transform.localRotation = rot;
+                obj.transform.localRotation = this.GetValue();
             }
-        }
-
-        public bool Equals(IAttribute attr)
-        {
-            if (attr is Rotation other)
-            {
-                return this.rot == other.rot;
-            }
-
-            return false;
         }
     }
 
-    public class Scale : ITransform
+    public class Scale : Attribute<Vector3>
     {
-        private Vector3 scale;
-
-        public Scale(Vector3 scale)
+        public Scale(Vector3 scale) : base("Scale", scale)
         {
-            this.scale = scale;
         }
 
-        public string GetKey() => "Scale";
-
-        public void Apply(UnityEngine.GameObject obj)
+        public override void Apply(UnityEngine.GameObject obj)
         {
-            obj.transform.localScale = this.scale;
-        }
-
-        public bool Equals(IAttribute attr)
-        {
-            if (attr is Scale other)
-            {
-                return this.scale == other.scale;
-            }
-
-            return false;
+            obj.transform.localScale = this.GetValue();
         }
     }
 }
