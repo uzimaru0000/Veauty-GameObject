@@ -151,7 +151,7 @@ namespace Veauty.GameObject
                     for (var i = 0; i < removeLast.diff; i++)
                     {
                         var child = go.transform.GetChild(removeLast.length);
-                        UnityEngine.Object.Destroy(child);
+                        UnityEngine.Object.Destroy(child.gameObject);
                     }
                     return go;
                 }
