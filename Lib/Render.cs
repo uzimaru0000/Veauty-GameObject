@@ -11,27 +11,27 @@ namespace Veauty.GameObject
             UnityEngine.GameObject go = null;
             switch (vTree)
             {
-                case NodeBase vNode:
+                case NodeBase<UnityEngine.GameObject> vNode:
                     go = CreateGameObject(vNode.tag, isUGUI);
                     AttachComponent(go, vNode, isUGUI);
                     ApplyAttrs(go, vNode);
                     RenderKids(go, vNode, isUGUI);
                     return go;
-                case Widget widget:
+                case Widget<UnityEngine.GameObject> widget:
                     return RenderWidget(widget, isUGUI);          
                 default:
                     throw new Exception("Invalid node type");
             }
         }
 
-        private static UnityEngine.GameObject RenderWidget(Widget widget, bool isUGUI)
+        private static UnityEngine.GameObject RenderWidget(Widget<UnityEngine.GameObject> widget, bool isUGUI)
         {
             var tree = widget.Render();
             switch (tree)
             {
-                case Widget nest:
+                case Widget<UnityEngine.GameObject> nest:
                     return Render(nest, isUGUI);
-                case BaseNode node:
+                case BaseNode<UnityEngine.GameObject> node:
                     var go = CreateGameObject(node.tag, isUGUI);
                     AttachComponent(go, node, isUGUI);
                     widget.Init(go);
@@ -78,7 +78,7 @@ namespace Veauty.GameObject
 
         private static void ApplyAttrs(UnityEngine.GameObject go, IVTree tree)
         {
-            if (!(tree is NodeBase node)) return;
+            if (!(tree is NodeBase<UnityEngine.GameObject> node)) return;
             foreach (var attr in node.attrs.attrs)
             {
                 attr.Value.Apply(go);

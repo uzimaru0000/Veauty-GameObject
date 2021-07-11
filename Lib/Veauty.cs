@@ -10,12 +10,12 @@ namespace Veauty.GameObject
         private UnityEngine.GameObject rootObj;
         private bool isUGUI;
         
-        public VeautyObject(UnityEngine.GameObject rootObj, System.Func<IVTree> renderFunc, bool isUGUI = false)
+        public VeautyObject(UnityEngine.GameObject rootObj, System.Func<IVTree> renderFunc)
         {
             this.mounter = rootObj;
             this.renderFunc = renderFunc;
             this.oldTree = renderFunc();
-            this.isUGUI = isUGUI;
+            this.isUGUI = rootObj.transform is RectTransform;
             
             Render();
         }
@@ -25,7 +25,7 @@ namespace Veauty.GameObject
             {
                 update(state);
                 var newTree = this.renderFunc();
-                var patches = Diff.Calc(this.oldTree, newTree);
+                var patches = Diff<UnityEngine.GameObject>.Calc(this.oldTree, newTree);
                 this.rootObj = Patch.Apply(this.rootObj, this.oldTree, patches, this.isUGUI);
             };
 
