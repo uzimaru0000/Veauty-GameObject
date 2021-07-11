@@ -37,11 +37,11 @@ namespace Veauty.GameObject.Attributes
         {
             if (this.isLocal)
             {
-                obj.transform.rotation = this.GetValue();
+                obj.transform.localRotation = this.GetValue();
             }
             else
             {
-                obj.transform.localRotation = this.GetValue();
+                obj.transform.rotation = this.GetValue();
             }
         }
     }
