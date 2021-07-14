@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Veauty.GameObject.Attributes
 {
-    public class Position : Attribute<Vector3>
+    public class Position : Attribute<UnityEngine.GameObject, Vector3>
     {
         private bool isLocal;
         
@@ -24,7 +24,7 @@ namespace Veauty.GameObject.Attributes
         }
     }
 
-    public class Rotation : Attribute<Quaternion>
+    public class Rotation : Attribute<UnityEngine.GameObject, Quaternion>
     {
         private bool isLocal;
         
@@ -37,16 +37,16 @@ namespace Veauty.GameObject.Attributes
         {
             if (this.isLocal)
             {
-                obj.transform.rotation = this.GetValue();
+                obj.transform.localRotation = this.GetValue();
             }
             else
             {
-                obj.transform.localRotation = this.GetValue();
+                obj.transform.rotation = this.GetValue();
             }
         }
     }
 
-    public class Scale : Attribute<Vector3>
+    public class Scale : Attribute<UnityEngine.GameObject, Vector3>
     {
         public Scale(Vector3 scale) : base("Scale", scale)
         {
