@@ -24,8 +24,14 @@ namespace Veauty.GameObject
             AddGameObjectNodesHelper(gameObjectNode, vTree, ref patches, 0, 0, vTree.GetDescendantsCount());
         }
 
-        private static int AddGameObjectNodesHelper(in UnityEngine.GameObject gameObjectNode, IVTree vTree, ref IPatch<UnityEngine.GameObject>[] patches, int i,
-            int low, int high)
+        private static int AddGameObjectNodesHelper(
+            in UnityEngine.GameObject gameObjectNode,
+            IVTree vTree,
+            ref IPatch<UnityEngine.GameObject>[] patches,
+            int i,
+            int low,
+            int high
+        )
         {
             var patch = patches[i];
             var index = patch.GetIndex();
@@ -159,6 +165,7 @@ namespace Veauty.GameObject
                     {
                         var kids = append.kids;
                         var i = append.length;
+
                         for (; i < kids.Length; i++)
                         {
                             var node = Renderer.Render(kids[i], isUGUI);
@@ -170,8 +177,8 @@ namespace Veauty.GameObject
                     {
                         if (remove.entry == null && remove.patches == null)
                         {
-                            go.transform.SetParent(null);
-                            return go;
+                            UnityEngine.Object.Destroy(go);
+                            return null;
                         }
 
                         if (remove.entry.index != -1)

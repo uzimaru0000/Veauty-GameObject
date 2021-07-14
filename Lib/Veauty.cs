@@ -2,32 +2,49 @@ using UnityEngine;
 
 namespace Veauty.GameObject
 {
-    public class VeautyObject
+    public class VeautyObject<State> where State : struct 
     {
         private IVTree oldTree;
         private readonly UnityEngine.GameObject mounter;
-        private readonly System.Func<IVTree> renderFunc;
+        private readonly System.Func<State, System.Action<State>, IVTree> renderFunc;
         private UnityEngine.GameObject rootObj;
         private bool isUGUI;
+
+        private State _state;
+        private State state
+        {
+            get => this._state;
+            set {
+                this._state = value;
+                ForceUpdate();
+            }
+        }
         
-        public VeautyObject(UnityEngine.GameObject rootObj, System.Func<IVTree> renderFunc)
+        public VeautyObject(UnityEngine.GameObject rootObj, System.Func<State, System.Action<State>, IVTree> renderFunc, State state = default(State))
         {
             this.mounter = rootObj;
             this.renderFunc = renderFunc;
-            this.oldTree = renderFunc();
+            this._state = state;
+            this.oldTree = renderFunc(this.state, state => this.state = state);
             this.isUGUI = rootObj.transform is RectTransform;
-            
+
             Render();
         }
 
-        public System.Action<T> SetState<T>(System.Action<T> update) =>
-            (state) =>
-            {
-                update(state);
-                var newTree = this.renderFunc();
-                var patches = Diff<UnityEngine.GameObject>.Calc(this.oldTree, newTree);
-                this.rootObj = Patch.Apply(this.rootObj, this.oldTree, patches, this.isUGUI);
-            };
+        public VeautyObject(
+            UnityEngine.GameObject rootObj,
+            System.Func<State, IVTree> renderFunc,
+            State state = default(State)
+        ) : this(rootObj, (state, _) => renderFunc(state), state) { }
+
+        public void ForceUpdate()
+        {
+            var newTree = this.renderFunc(this.state, state => this.state = state);
+            var patches = Diff<UnityEngine.GameObject>.Calc(this.oldTree, newTree);
+
+            this.rootObj = Patch.Apply(this.rootObj, this.oldTree, patches, this.isUGUI);
+            this.oldTree = newTree;
+        }
 
         private void Render()
         {
